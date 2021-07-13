@@ -12,7 +12,7 @@ contract LockPool is Ownable {
     using SafeERC20 for IERC20;
 
     IERC20 public govToken;
-    uint256 public withdrawPeriod = 60 * 60 * 168;
+    uint256 public withdrawPeriod = 60 * 60 * 72;
     address public daoPool;
 
     struct WithDrawEntity {
