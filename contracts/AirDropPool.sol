@@ -18,6 +18,7 @@ contract AirDropPool is Governable {
 
     uint256 public totalSupply;
     uint256 public periodFinish = 0;
+    bool public checkStake;
 
     mapping(address => uint256) public rewards;
     mapping(address => uint256) public airDropAmount;
@@ -25,6 +26,7 @@ contract AirDropPool is Governable {
     event RewardAdded(uint256 reward);
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward);
+    event NeedToCheckStake(bool checkRequired);
 
     constructor(string memory _name,
                 address _rewardToken,
@@ -46,7 +48,7 @@ contract AirDropPool is Governable {
     function withdraw() public {
         require(msg.sender == tx.origin, "Only human allow to get reward");
         require(block.timestamp <= periodFinish, "Only allow to get reward in open time");
-        require(stakePowerToken.balanceOf(msg.sender) > 0, "Only staking user can withdraw airdrop token");
+        require(!checkState || stakePowerToken.balanceOf(msg.sender) > 0, "Only staking user can withdraw airdrop token");
 
         uint256 reward = earned(msg.sender);
         require(reward > 0, "No enough reward to get");
@@ -84,5 +86,10 @@ contract AirDropPool is Governable {
         }
         rewardToken.safeTransfer(msg.sender, transferAmount);
         emit Withdrawn(msg.sender, amount);
+    }
+
+    function flipCheckState() external onlyGovernance {
+        checkStake = !checkStake;
+        emit NeedToCheckStake(checkStake);
     }
 }
