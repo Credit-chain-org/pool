@@ -48,7 +48,7 @@ contract AirDropPool is Governable {
     function withdraw() public {
         require(msg.sender == tx.origin, "Only human allow to get reward");
         require(block.timestamp <= periodFinish, "Only allow to get reward in open time");
-        require(!checkState || stakePowerToken.balanceOf(msg.sender) > 0, "Only staking user can withdraw airdrop token");
+        require(!checkStake || stakePowerToken.balanceOf(msg.sender) > 0, "Only staking user can withdraw airdrop token");
 
         uint256 reward = earned(msg.sender);
         require(reward > 0, "No enough reward to get");
@@ -62,6 +62,7 @@ contract AirDropPool is Governable {
         require(userList.length == amount.length, "Inconsistent length");
 
         for (uint256 i = 0; i < userList.length; i++) {
+            rewards[account] = 0;
             airDropAmount[userList[i]] = amount[i];
         }
     }
