@@ -13,7 +13,7 @@ contract LockPool is Ownable {
 
     IERC20 public govToken;
     uint256 public withdrawPeriod = 60 * 60 * 72;
-    address public daoPool;
+    address public stakingPool;
 
     struct WithDrawEntity {
         uint256 amount;
@@ -22,14 +22,14 @@ contract LockPool is Ownable {
 
     mapping (address => WithDrawEntity) private withdrawEntities;
 
-    modifier onlyDaoPool() {
-        require(msg.sender == daoPool, "Not dao pool");
+    modifier onlyStakingPool() {
+        require(msg.sender == stakingPool, "Not staking pool");
         _;
     }
 
-    function setDaoPool(address _pool, address _govToken) external onlyOwner {
-        require(_pool != address(0) && _govToken != address(0), "dao pool and token address shouldn't be empty");
-        daoPool = _pool;
+    function setStakingPool(address _pool, address _govToken) external onlyOwner {
+        require(_pool != address(0) && _govToken != address(0), "Staking pool and token address shouldn't be empty");
+        stakingPool = _pool;
         govToken = IERC20(_govToken);
     }
 
@@ -37,13 +37,13 @@ contract LockPool is Ownable {
         withdrawPeriod = _withdrawPeriod;
     }
 
-    function lock(address account, uint256 amount) external onlyDaoPool {
+    function lock(address account, uint256 amount) external onlyStakingPool {
         withdrawEntities[account].amount = withdrawEntities[account].amount.add(amount);
         withdrawEntities[account].time = block.timestamp;
         govToken.safeTransferFrom(msg.sender, address(this), amount);
     }
 
-    function withdraw(address account, uint256 amount) external onlyDaoPool {
+    function withdraw(address account, uint256 amount) external onlyStakingPool {
         _withdraw(account, amount);
     }
 

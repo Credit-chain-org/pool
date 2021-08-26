@@ -3,13 +3,15 @@
 pragma solidity ^0.6.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Snapshot.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
+import "./UpgradeableERC20.sol";
+
 import "./LockPool.sol";
 
-contract StakingPool is ERC20Snapshot {
+contract StakingPool is UpgradeableERC20 {
     uint256 internal initialExchangeRateMantissa;
     uint256 public accrualBlockNumber;
     uint256 public totalBalance;
@@ -17,8 +19,6 @@ contract StakingPool is ERC20Snapshot {
     address public govToken;
     address public governance;
     LockPool public lockPool;
-
-    uint256 public currentSnapshotId;
 
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
@@ -33,7 +33,8 @@ contract StakingPool is ERC20Snapshot {
         _;
     }
 
-    constructor(address _governance, address _govToken, address _lockPool, uint256 _accrualBlockNumberInterval, uint256 initialExchangeRateMantissa_, uint256 rewardRate_, string memory name_, string memory symbol_) public ERC20(name_, symbol_) {
+    function initialize(address _governance, address _govToken, address _lockPool, uint256 _accrualBlockNumberInterval, uint256 initialExchangeRateMantissa_, uint256 rewardRate_, string memory _name, string memory _symbol) public initializer {
+        __ERC20_init(_name, _symbol);
         governance = _governance;
         govToken = _govToken;
         initialExchangeRateMantissa = initialExchangeRateMantissa_;
@@ -130,11 +131,6 @@ contract StakingPool is ERC20Snapshot {
 
     function withdrawTime() view public returns(uint256) {
         return lockPool.withdrawTime(msg.sender);
-    }
-
-    function snapshot() external onlyGovernance returns (uint256) {
-        currentSnapshotId = _snapshot();
-        return currentSnapshotId;
     }
 
     function setGovernance(address newAdmin) public onlyGovernance {

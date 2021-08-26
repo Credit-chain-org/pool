@@ -1,6 +1,8 @@
 const StakingPool = artifacts.require("StakingPool");
 const LockPool = artifacts.require("LockPool");
 const AirDropPool = artifacts.require("AirDropPool");
+const StakingPoolProxy = artifacts.require("StakingPoolProxy");
+const ProxyAdmin = "0xCD9f286BA6A3d2DF7885F4A2Be267Fc524D32bD3";
 
 module.exports = async function (deployer, network) {
     if (network == "bsctest") {
@@ -12,13 +14,18 @@ module.exports = async function (deployer, network) {
         const accrualBlockNumberInterval = 0;
         const initialExchangeRateMantissa = 0.02e18.toString();
         const rewardRate = 1e18.toString();
-        const name = "DTCT Power"
-        const symbol = "DTCTP";
-        await deployer.deploy(StakingPool, governance, govToken, lockPool, accrualBlockNumberInterval, initialExchangeRateMantissa, 
-            rewardRate, name, symbol);
+        const name = "CDTC Power"
+        const symbol = "CDTCP";
+        await deployer.deploy(StakingPool);
+        await deployer.deploy(StakingPoolProxy, StakingPool.address, ProxyAdmin , []);
+        const stakingPoolInstance = await StakingPool.at(StakingPoolProxy.address);
+        stakingPoolInstance.initialize(governance, govToken, lockPool, accrualBlockNumberInterval, initialExchangeRateMantissa, 
+        rewardRate, name, symbol);
         
         const LockPoolInstance = await LockPool.deployed();
-        await LockPoolInstance.setDaoPool(StakingPool.address, govToken);
-        await deployer.deploy(AirDropPool, "DTCT Airdrop", govToken, StakingPool.address, 604800);
+        await LockPoolInstance.setStakingPool(StakingPoolProxy.address, govToken);
+        await LockPoolInstance.setWithdrawPeriod(180);
+
+        await deployer.deploy(AirDropPool, "CDTC Airdrop", govToken, StakingPool.address, 604800);
     }
 };

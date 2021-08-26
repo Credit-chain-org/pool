@@ -68,7 +68,7 @@
      // }
  
        bsctest: {
-           provider: () => new HDWalletProvider(mnemonic, `ws://1.117.32.127/wsbsc/`),
+           provider: () => new HDWalletProvider(mnemonic, `wss://speedy-nodes-nyc.moralis.io/50d91e85ea901f0b2e54edeb/bsc/testnet/ws`),
            network_id: "97",
            timeoutBlocks: 600,
            //confirmations: 2,

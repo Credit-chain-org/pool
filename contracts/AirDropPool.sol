@@ -62,7 +62,7 @@ contract AirDropPool is Governable {
         require(userList.length == amount.length, "Inconsistent length");
 
         for (uint256 i = 0; i < userList.length; i++) {
-            rewards[account] = 0;
+            rewards[userList[i]] = 0;
             airDropAmount[userList[i]] = amount[i];
         }
     }
